@@ -367,7 +367,8 @@ p { margin: 0; }
 .sheet__close { position: absolute; top: 8px; right: 8px; background: var(--surface-2); width: 38px; height: 38px; }
 .sheet__close .i { width: 16px; height: 16px; }
 .sheet__body:focus { outline: none; }
-.sheet__body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 4px 20px calc(24px + var(--safe-b)); }
+/* flex-basis auto (no `flex: 1`): con base 0% WebKit/iOS colapsa el contenido a 0 de alto. */
+.sheet__body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 20px calc(24px + var(--safe-b)); }
 
 .sheet__kicker { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); padding-right: 44px; }
 .sheet__title { margin: 6px 0 0; font-size: 22px; line-height: 1.2; font-weight: 700; padding-right: 36px; }
