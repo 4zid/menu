@@ -105,7 +105,7 @@
     return `
       <button class="item${off ? ' is-off' : ''}" type="button" data-id="${item.id}">
         <span class="item__head">
-          <span class="item__name">${esc(item.name)}${item.unit ? `<span class="item__unit">${esc(item.unit)}</span>` : ''}${item.tags.length ? `<span class="item__tags">${tagIcons(item)}</span>` : ''}<span class="item__qty" hidden></span></span>
+          <span class="item__name">${esc(item.name)}${item.unit ? `<span class="item__unit">${esc(item.unit)}</span>` : ''}${item.tags.length ? `<span class="item__tags">${tagIcons(item)}</span>` : ''}</span>
           <span class="item__leader" aria-hidden="true"></span>
           <span class="item__price">${item.variants ? 'desde ' : ''}${money(basePrice(item))}</span>
         </span>
@@ -124,7 +124,6 @@
         <span class="pcard__title">${esc(item.name)}${tagIcons(item)}</span>
         ${item.desc ? `<span class="pcard__desc">${esc(item.desc)}</span>` : ''}
         <span class="pcard__prices">${prices}</span>
-        <span class="item__qty pcard__qty" hidden></span>
       </button>`;
   }
 
@@ -432,77 +431,6 @@
     }
   });
 
-  /* ───────────── Pedido (local, sin envío) ───────────── */
-
-  const STORE_KEY = 'esquina-pedido-v1';
-  let order = loadOrder();
-
-  function loadOrder() {
-    try {
-      const raw = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
-      return Array.isArray(raw) ? raw.filter((l) => itemsById.has(l.id) && l.qty > 0) : [];
-    } catch {
-      return [];
-    }
-  }
-  function saveOrder() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(order)); } catch { /* modo privado */ }
-  }
-
-  const lineKey = (l) => [l.id, l.variant || '', l.option || '', (l.addons || []).slice().sort().join('+')].join('|');
-
-  function unitPrice(line) {
-    const { item } = itemsById.get(line.id);
-    const v = item.variants && item.variants.find((x) => x.label === line.variant);
-    let p = v ? v.price : basePrice(item);
-    (line.addons || []).forEach((aid) => {
-      const a = M.addons.find((x) => x.id === aid);
-      if (a) p += a.price;
-    });
-    return p;
-  }
-
-  const orderCount = () => order.reduce((n, l) => n + l.qty, 0);
-  const orderTotal = () => order.reduce((n, l) => n + unitPrice(l) * l.qty, 0);
-
-  function addToOrder(line) {
-    const key = lineKey(line);
-    const existing = order.find((l) => lineKey(l) === key);
-    if (existing) existing.qty += line.qty;
-    else order.push(line);
-    saveOrder();
-    syncOrderUI(true);
-  }
-
-  function setLineQty(index, qty) {
-    if (!order[index]) return;
-    if (qty <= 0) order.splice(index, 1);
-    else order[index].qty = qty;
-    saveOrder();
-    syncOrderUI(false);
-  }
-
-  const orderBar = $('#orderBar');
-  function syncOrderUI(bump) {
-    const count = orderCount();
-    orderBar.hidden = count === 0;
-    $('#orderCount').textContent = count;
-    $('#orderTotal').textContent = money(orderTotal());
-    if (bump && count) {
-      orderBar.classList.remove('is-bump');
-      void orderBar.offsetWidth;
-      orderBar.classList.add('is-bump');
-    }
-    const perItem = new Map();
-    order.forEach((l) => perItem.set(l.id, (perItem.get(l.id) || 0) + l.qty));
-    $$('[data-li]', main).forEach((li) => {
-      const badge = $('.item__qty', li);
-      const n = perItem.get(li.dataset.li) || 0;
-      badge.hidden = n === 0;
-      badge.textContent = n ? (li.querySelector('.pcard') ? `${n} en tu pedido` : `×${n}`) : '';
-    });
-  }
-
   /* ───────────── Bottom sheets ───────────── */
 
   function openSheet(dlg) {
@@ -578,181 +506,40 @@
     }
   });
 
-  /* ───────────── Detalle del ítem ───────────── */
+  /* ───────────── Detalle del ítem (solo lectura) ───────────── */
 
   const itemSheet = $('#itemSheet');
   const itemBody = $('#itemBody');
-  const itemFoot = $('#itemFoot');
-  let sel = null;
 
-  function selectionPrice() {
-    const { item } = itemsById.get(sel.id);
-    let p = item.variants ? item.variants[sel.variant].price : item.price;
-    sel.addons.forEach((aid) => { p += M.addons.find((a) => a.id === aid).price; });
-    return p;
-  }
-
-  function renderItemFoot() {
-    const { item } = itemsById.get(sel.id);
-    const off = item.available === false;
-    const unit = selectionPrice();
-    itemFoot.innerHTML = `
-      <div class="stepper" role="group" aria-label="Cantidad">
-        <button type="button" data-step="-1" aria-label="Restar uno">${icon('minus')}</button>
-        <output aria-live="polite">${sel.qty}</output>
-        <button type="button" data-step="1" aria-label="Sumar uno">${icon('plus')}</button>
-      </div>
-      <button class="btn btn--accent" type="button" data-add ${off ? 'disabled' : ''}>
-        ${off ? 'Sin stock' : `Agregar · ${money(unit * sel.qty)}`}
-      </button>`;
-    const price = $('#selPrice');
-    const cashEl = $('#selCash');
-    if (price) price.textContent = money(unit);
-    if (cashEl) cashEl.textContent = `${money(cash(unit))} pagando en efectivo`;
-  }
+  const priceBlock = (price) =>
+    `<span class="detail__price">${money(price)}</span><span class="detail__cash">${money(cash(price))} en efectivo</span>`;
 
   function openItem(id) {
     const { item, cat } = itemsById.get(id);
-    sel = { id, qty: 1, variant: item.variants ? 0 : null, option: item.options ? 0 : null, addons: new Set() };
     const tags = item.tags.filter((t) => M.tags[t]);
+    const off = item.available === false;
     itemBody.innerHTML = `
       <p class="sheet__kicker">${esc(cat.title)}${cat.note ? ` · ${esc(cat.note)}` : ''}</p>
       <h2 class="sheet__title" id="itemTitle">${esc(item.name)}${item.unit ? ` <span class="item__unit">${esc(item.unit)}</span>` : ''}</h2>
       ${tags.length ? `<div class="sheet__tags">${tags.map((t) => `<span class="badge">${icon(t)}${esc(M.tags[t].label)}</span>`).join('')}</div>` : ''}
       ${item.desc ? `<p class="sheet__desc">${esc(item.desc)}</p>` : ''}
-      <p class="sheet__price" id="selPrice"></p>
-      <p class="sheet__cash" id="selCash"></p>
-      ${item.variants ? `
-        <fieldset class="field">
-          <legend>Tamaño</legend>
-          <div class="choices">
-            ${item.variants.map((v, i) => `
-              <label class="choice"><input type="radio" name="variant" value="${i}" ${i === 0 ? 'checked' : ''}><span>${esc(v.label)} <small>${money(v.price)}</small></span></label>`).join('')}
-          </div>
-        </fieldset>` : ''}
+      ${off ? '<p class="detail__off">Sin stock por el momento</p>' : ''}
+      <ul class="detail__rows">
+        ${item.variants
+          ? item.variants.map((v) => `<li class="detail__row"><span>${esc(v.label)}</span>${priceBlock(v.price)}</li>`).join('')
+          : `<li class="detail__row"><span>Precio</span>${priceBlock(item.price)}</li>`}
+        ${item.addons.map((a) => `<li class="detail__row detail__row--addon"><span>${esc(a.name)}</span><span class="detail__price">+ ${money(a.price)}</span></li>`).join('')}
+      </ul>
       ${item.options ? `
-        <fieldset class="field">
-          <legend>Elegí una opción</legend>
-          <div class="choices">
-            ${item.options.map((o, i) => `
-              <label class="choice"><input type="radio" name="option" value="${i}" ${i === 0 ? 'checked' : ''}><span>${esc(o)}</span></label>`).join('')}
-          </div>
-        </fieldset>` : ''}
-      ${item.addons.length ? `
-        <fieldset class="field">
-          <legend>Adicionales</legend>
-          <div class="choices">
-            ${item.addons.map((a) => `
-              <label class="choice check"><input type="checkbox" name="addon" value="${a.id}"><span>${esc(a.name)} <small>+ ${money(a.price)}</small></span></label>`).join('')}
-          </div>
-        </fieldset>` : ''}`;
-    renderItemFoot();
+        <p class="detail__label">Opciones</p>
+        <div class="detail__opts">${item.options.map((o) => `<span class="detail__opt">${esc(o)}</span>`).join('')}</div>` : ''}
+      <p class="detail__hint">${M.settings.discount.percent}% de descuento pagando en ${esc(M.settings.discount.method)}.</p>`;
     openSheet(itemSheet);
   }
 
   main.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-id]');
     if (btn) openItem(btn.dataset.id);
-  });
-
-  itemBody.addEventListener('change', (e) => {
-    const t = e.target;
-    if (t.name === 'variant') sel.variant = +t.value;
-    if (t.name === 'option') sel.option = +t.value;
-    if (t.name === 'addon') {
-      if (t.checked) sel.addons.add(t.value);
-      else sel.addons.delete(t.value);
-    }
-    renderItemFoot();
-  });
-
-  itemFoot.addEventListener('click', (e) => {
-    const step = e.target.closest('[data-step]');
-    if (step) {
-      sel.qty = Math.min(20, Math.max(1, sel.qty + +step.dataset.step));
-      renderItemFoot();
-      return;
-    }
-    if (e.target.closest('[data-add]')) {
-      const { item } = itemsById.get(sel.id);
-      addToOrder({
-        id: sel.id,
-        qty: sel.qty,
-        variant: item.variants ? item.variants[sel.variant].label : null,
-        option: item.options ? item.options[sel.option] : null,
-        addons: [...sel.addons]
-      });
-      closeSheet(itemSheet);
-      toast(`${sel.qty > 1 ? `${sel.qty} × ` : ''}${item.name} agregado`);
-    }
-  });
-
-  /* ───────────── Mi pedido ───────────── */
-
-  const orderSheet = $('#orderSheet');
-  const orderBody = $('#orderBody');
-  const orderFoot = $('#orderFoot');
-
-  function renderOrder() {
-    if (!order.length) {
-      orderBody.innerHTML = `
-        <h2 class="order__title" id="orderTitle">Mi pedido</h2>
-        <div class="order__empty">${icon('bag')}<p>Todavía no agregaste nada.<br>Tocá un plato o bebida para sumarlo.</p></div>`;
-      orderFoot.innerHTML = `<button class="btn btn--ghost btn--block" type="button" data-close>Ver la carta</button>`;
-      return;
-    }
-    const total = orderTotal();
-    orderBody.innerHTML = `
-      <h2 class="order__title" id="orderTitle">Mi pedido</h2>
-      <p class="order__hint">Esta lista no envía el pedido: mostrásela al mozo cuando pidas.</p>
-      <ul class="order__list">
-        ${order.map((l, i) => {
-          const { item, cat } = itemsById.get(l.id);
-          const meta = [l.variant, l.option, ...(l.addons || []).map((aid) => {
-            const a = M.addons.find((x) => x.id === aid);
-            return a ? `+ ${a.name.replace(/^Adicional /i, '')}` : '';
-          })].filter(Boolean);
-          meta.push(cat.title);
-          return `
-            <li class="order__line">
-              <div class="order__info">
-                <p class="order__name">${esc(item.name)}${item.unit ? ` <span class="item__unit">${esc(item.unit)}</span>` : ''}</p>
-                <p class="order__meta">${meta.map(esc).join(' · ')}</p>
-                <p class="order__price">${money(unitPrice(l) * l.qty)}</p>
-              </div>
-              <div class="stepper stepper--sm" role="group" aria-label="Cantidad de ${esc(item.name)}">
-                <button type="button" data-line="${i}" data-step="-1" aria-label="Restar uno">${icon('minus')}</button>
-                <output>${l.qty}</output>
-                <button type="button" data-line="${i}" data-step="1" aria-label="Sumar uno">${icon('plus')}</button>
-              </div>
-            </li>`;
-        }).join('')}
-      </ul>
-      <div class="order__totals">
-        <p class="order__row"><span>Total</span><span>${money(total)}</span></p>
-        <p class="order__row order__row--cash"><span>En efectivo (−${M.settings.discount.percent}%)</span><span>${money(cash(total))}</span></p>
-      </div>
-      <button class="order__clear" type="button" data-empty>Vaciar pedido</button>`;
-    orderFoot.innerHTML = `<button class="btn btn--accent btn--block" type="button" data-close>Seguir viendo la carta</button>`;
-  }
-
-  orderBar.addEventListener('click', () => { renderOrder(); openSheet(orderSheet); });
-
-  orderBody.addEventListener('click', (e) => {
-    const step = e.target.closest('[data-step]');
-    if (step) {
-      const i = +step.dataset.line;
-      setLineQty(i, order[i].qty + +step.dataset.step);
-      renderOrder();
-      return;
-    }
-    if (e.target.closest('[data-empty]')) {
-      order = [];
-      saveOrder();
-      syncOrderUI(false);
-      renderOrder();
-      toast('Pedido vaciado');
-    }
   });
 
   /* ───────────── Toast ───────────── */
@@ -768,7 +555,6 @@
 
   /* ───────────── Inicio ───────────── */
 
-  syncOrderUI(false);
   applyFilters();
 
   function goToHash() {
@@ -780,8 +566,19 @@
     return true;
   }
 
+  // Si la persona todavía no scrolleó, se re-ubica cuando cargan las fuentes (cambian las alturas).
+  let touched = false;
+  const markTouched = () => { touched = true; };
+  ['touchstart', 'wheel', 'keydown', 'pointerdown'].forEach((ev) => window.addEventListener(ev, markTouched, { once: true, passive: true }));
+
   if (!goToHash()) spy();
   window.addEventListener('hashchange', goToHash);
   window.addEventListener('resize', () => { updateTail(); spy(); });
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { updateTail(); spy(); });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      updateTail();
+      if (!touched && location.hash) goToHash();
+      else spy();
+    });
+  }
 })();

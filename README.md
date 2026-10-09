@@ -9,8 +9,8 @@ Carta web mobile-first para abrir desde el QR de la mesa. Es un sitio estático 
 - **Links por categoría:** `/#pizzas`, `/#tragos-de-autor`, etc., para compartir o imprimir un QR por sección.
 - **Buscador sin acentos:** "faina" encuentra "Fainá". Busca en nombre, descripción, opciones y categoría.
 - **Filtros de dieta:** Vegetariano (incluye veganos), Vegano y Sin TACC, combinables. Las categorías vacías se ocultan.
-- **Detalle de cada ítem** en bottom sheet: elegir opción (Rubia/Roja/IPA), tamaño (Mediana/Grande), adicional (doble carne) y cantidad, con el precio en efectivo.
-- **Mi pedido:** lista local para mostrarle al mozo, con total y total con 15% en efectivo. No envía nada; se guarda en el navegador.
+- **Ficha de cada ítem** en un panel desde abajo: descripción, etiquetas de dieta, precios por tamaño, opciones, adicionales y el precio pagando en efectivo.
+- Es solo para ver la carta: no hay carrito ni pedidos desde la web.
 - Ítems con `available: false` se muestran tachados como "Sin stock".
 
 ## Estructura
@@ -18,7 +18,7 @@ Carta web mobile-first para abrir desde el QR de la mesa. Es un sitio estático 
 ```
 index.html        estructura + íconos SVG
 styles.css        estilos (tokens de color y tipografía en :root)
-app.js            render, scroll-spy, búsqueda, filtros, pedido
+app.js            render, scroll-spy, búsqueda, filtros, ficha de ítem
 data/menu.js      TODA la carta: categorías, ítems, precios, datos del local
 assets/           logo (vector, extraído del PDF), ornamentos y fotos
 ```
