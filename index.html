@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Esquina Libertad · Carta</title>
+  <meta name="description" content="Carta digital de Esquina Libertad: picoteo, morfi, pizzas, empanadas, tragos de autor y más. 15% de descuento pagando en efectivo.">
+  <meta name="theme-color" content="#101010">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:title" content="Esquina Libertad · Carta">
+  <meta property="og:description" content="Mirá la carta, filtrá por vegetariano, vegano o sin TACC y armá tu pedido.">
+  <meta property="og:image" content="assets/photo-comida.jpg">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Íconos -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-vegetariano" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22v-9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M12 13.5C11.6 7.6 15 3.9 21.2 3.2 21.4 9.4 18 13.1 12 13.5Z"/></symbol>
+    <symbol id="i-vegano" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22v-9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M12 13.5C11.6 7.6 15 3.9 21.2 3.2 21.4 9.4 18 13.1 12 13.5Z"/><path d="M11.4 17C11.6 12.2 8.8 9.2 3.2 8.6 3 13.6 6.2 16.7 11.4 17Z"/></symbol>
+    <symbol id="i-sintacc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9"/><path d="M12 11c-2.4 0-3.8-1.4-3.8-3.8 2.4 0 3.8 1.4 3.8 3.8Zm0 0c2.4 0 3.8-1.4 3.8-3.8-2.4 0-3.8 1.4-3.8 3.8Zm0 4.8c-2.4 0-3.8-1.4-3.8-3.8 2.4 0 3.8 1.4 3.8 3.8Zm0 0c2.4 0 3.8-1.4 3.8-3.8-2.4 0-3.8 1.4-3.8 3.8Z"/><path d="M4 4l16 16"/></symbol>
+    <symbol id="i-kosher" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 7.5v9M14.6 7.5l-5 5M11.4 10.7l3.4 5.8"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2.5 9a14 14 0 0 1 19 0M5.8 12.5a9.2 9.2 0 0 1 12.4 0M9.2 16a4.4 4.4 0 0 1 5.6 0"/><circle cx="12" cy="19.2" r="1.3" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3.5a8.5 8.5 0 0 0-7.4 12.7L3.5 20.5l4.4-1.1A8.5 8.5 0 1 0 12 3.5Z"/><path d="M9 9.2c0 3 2.6 5.6 5.8 5.8l1-1.4-1.9-1-1 .8c-.9-.4-1.9-1.4-2.3-2.3l.8-1-1-1.9Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 8.5V6A2.5 2.5 0 0 0 13 3.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2L5 8Z"/><path d="M9 10V7a3 3 0 0 1 6 0v3" stroke-linecap="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-orn" viewBox="614 4055 76 51"><path fill="currentColor" d="M 644.394531 4070.203125 C 646.222656 4072.777344 652.425781 4070.523438 656.554688 4067.492188 C 660.683594 4064.460938 671.652344 4062.78125 671.910156 4066.265625 C 672.167969 4069.75 669.457031 4070.71875 665.136719 4071.425781 C 660.8125 4072.136719 646.683594 4075.878906 639.585938 4080.976562 C 632.492188 4086.074219 622.8125 4093.6875 617.007812 4101.425781 C 615.972656 4104.007812 619.714844 4100.847656 621.265625 4098.847656 C 622.8125 4096.847656 641.972656 4082.71875 653.328125 4083.234375 C 664.683594 4083.75 666.425781 4086.976562 671.652344 4086.203125 C 676.878906 4085.425781 683.394531 4081.621094 685.78125 4077.945312 C 688.167969 4074.265625 683.007812 4074.460938 680.8125 4074.71875 C 678.621094 4074.976562 664.296875 4075.75 664.296875 4075.75 C 664.296875 4075.75 679.910156 4073.167969 679.78125 4066.203125 C 679.652344 4059.234375 666.8125 4056.847656 663.523438 4056.976562 C 660.230469 4057.105469 654.359375 4059.621094 646.359375 4063.878906 C 644.101562 4065.554688 643.523438 4068.976562 644.394531 4070.203125 "/></symbol>
+  </svg>
+
+  <a class="skip" href="#menu">Ir a la carta</a>
+
+  <header class="hero">
+    <img class="hero__logo" src="assets/logo-lockup.svg" width="152" height="84" alt="Esquina Libertad">
+    <p class="hero__promo"><span class="accent">15%</span> de descuento</p>
+    <p class="hero__promo-sub">*pagando en <span class="accent">efectivo</span>*</p>
+
+    <div class="info">
+      <div class="info__card">
+        <p class="info__label"><svg class="i"><use href="#i-wifi"/></svg> WiFi</p>
+        <p class="info__line"><span class="muted">Red</span> <b id="wifiNet"></b></p>
+        <p class="info__line"><span class="muted">Clave</span> <b id="wifiPass"></b></p>
+        <button class="btn btn--ghost btn--sm" id="copyWifi" type="button"><svg class="i"><use href="#i-copy"/></svg> Copiar clave</button>
+      </div>
+      <div class="info__card">
+        <p class="info__label">Reservas</p>
+        <p class="info__text">Reservá tu mesa:</p>
+        <a class="btn btn--accent btn--sm" id="waLink" target="_blank" rel="noopener"><svg class="i"><use href="#i-chat"/></svg> WhatsApp</a>
+        <a class="btn btn--ghost btn--sm" id="igLink" target="_blank" rel="noopener"><svg class="i"><use href="#i-instagram"/></svg> Instagram</a>
+      </div>
+    </div>
+
+    <button class="search-entry" id="searchEntry" type="button">
+      <svg class="i"><use href="#i-search"/></svg>
+      <span>Buscar plato, bebida o ingrediente</span>
+    </button>
+    <div class="legend" id="legend" aria-label="Filtrar por dieta"></div>
+  </header>
+
+  <div class="nav-anchor" id="navAnchor"></div>
+  <nav class="nav" id="nav" aria-label="Secciones de la carta">
+    <div class="nav__row nav__browse">
+      <div class="tabs" id="tabs"></div>
+      <button class="icon-btn" id="openSearch" type="button" aria-label="Buscar y filtrar"><svg class="i"><use href="#i-search"/></svg></button>
+    </div>
+    <div class="nav__row nav__search">
+      <label class="search">
+        <svg class="i"><use href="#i-search"/></svg>
+        <input id="q" type="search" inputmode="search" autocomplete="off" enterkeyhint="search" placeholder="Buscar plato, bebida, ingrediente…" aria-label="Buscar en la carta">
+        <button class="search__clear" id="clearQ" type="button" aria-label="Borrar búsqueda" hidden><svg class="i"><use href="#i-close"/></svg></button>
+      </label>
+      <button class="link-btn" id="closeSearch" type="button">Cancelar</button>
+    </div>
+    <div class="chips" id="catChips"></div>
+    <div class="chips chips--diet" id="dietChips" role="group" aria-label="Filtrar por dieta"></div>
+    <p class="results" id="results" aria-live="polite"></p>
+  </nav>
+
+  <main id="menu" class="menu" tabindex="-1"></main>
+
+  <footer class="footer">
+    <img src="assets/logo-lockup.svg" width="110" height="61" alt="" loading="lazy">
+    <p><b>15% de descuento</b> pagando en efectivo.</p>
+    <p class="muted" id="updated"></p>
+    <p class="footer__links">
+      <a id="waFooter" target="_blank" rel="noopener"></a>
+      <a id="igFooter" target="_blank" rel="noopener"></a>
+    </p>
+  </footer>
+
+  <button class="order-bar" id="orderBar" type="button" aria-label="Ver mi pedido" hidden>
+    <span class="order-bar__left"><svg class="i"><use href="#i-bag"/></svg> Mi pedido <span class="order-bar__count" id="orderCount"></span></span>
+    <span class="order-bar__total" id="orderTotal"></span>
+  </button>
+
+  <dialog class="sheet" id="itemSheet" aria-labelledby="itemTitle">
+    <div class="sheet__grab" data-grab><span></span></div>
+    <button class="icon-btn sheet__close" type="button" data-close aria-label="Cerrar"><svg class="i"><use href="#i-close"/></svg></button>
+    <div class="sheet__body" id="itemBody"></div>
+    <div class="sheet__foot" id="itemFoot"></div>
+  </dialog>
+
+  <dialog class="sheet" id="orderSheet" aria-labelledby="orderTitle">
+    <div class="sheet__grab" data-grab><span></span></div>
+    <button class="icon-btn sheet__close" type="button" data-close aria-label="Cerrar"><svg class="i"><use href="#i-close"/></svg></button>
+    <div class="sheet__body" id="orderBody"></div>
+    <div class="sheet__foot" id="orderFoot"></div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <noscript><p class="noscript">Activá JavaScript para ver la carta.</p></noscript>
+
+  <script src="data/menu.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
