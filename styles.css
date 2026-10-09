@@ -346,25 +346,27 @@ p { margin: 0; }
 /* ───────────── Bottom sheets ───────────── */
 
 .sheet {
-  position: fixed; inset: auto 0 0 0;
+  position: fixed; inset: auto 0 0 0; z-index: 50;
   width: 100%; max-width: var(--max); max-height: min(90dvh, 90vh);
   margin: 0 auto; padding: 0; border: 0;
   border-radius: 22px 22px 0 0;
   background: var(--surface); color: var(--text);
   flex-direction: column; overflow: hidden;
-  transform: translateY(100%);
-  transition: transform .34s var(--ease);
+  box-shadow: 0 -12px 40px -12px rgba(0, 0, 0, .7);
 }
-.sheet[open] { display: flex; }
-.sheet.is-open { transform: none; }
-.sheet.is-dragging { transition: none; }
-.sheet::backdrop { background: rgba(0, 0, 0, .65); opacity: 0; transition: opacity .3s; }
-.sheet.is-open::backdrop { opacity: 1; }
+.sheet[open] { display: flex; animation: sheet-in .34s var(--ease); }
+.sheet.is-closing { animation: sheet-out .26s cubic-bezier(.4, 0, 1, 1) forwards; pointer-events: none; }
+.sheet::backdrop { background: rgba(0, 0, 0, .65); }
+.sheet[open]::backdrop { animation: fade-in .3s ease; }
+@keyframes sheet-in { from { transform: translateY(100%); } }
+@keyframes sheet-out { to { transform: translateY(100%); } }
+@keyframes fade-in { from { opacity: 0; } }
 
 .sheet__grab { flex: none; display: grid; place-items: center; height: 26px; touch-action: none; cursor: grab; }
 .sheet__grab span { width: 40px; height: 5px; border-radius: 5px; background: var(--line-strong); }
 .sheet__close { position: absolute; top: 8px; right: 8px; background: var(--surface-2); width: 38px; height: 38px; }
 .sheet__close .i { width: 16px; height: 16px; }
+.sheet__body:focus { outline: none; }
 .sheet__body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 4px 20px calc(24px + var(--safe-b)); }
 
 .sheet__kicker { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); padding-right: 44px; }

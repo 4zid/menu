@@ -15,6 +15,8 @@
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const icon = (name, cls = 'i') => `<svg class="${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let savedY = 0;
+  const keepScroll = () => { if (Math.abs(window.scrollY - savedY) > 1) window.scrollTo(0, savedY); };
 
   /* ───────────── Índice ───────────── */
 
@@ -239,6 +241,8 @@
 
   let ticking = false;
   window.addEventListener('scroll', () => {
+    // Con un panel abierto la página no se mueve (iOS a veces la salta al principio).
+    if (document.documentElement.classList.contains('is-locked')) { keepScroll(); return; }
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => { ticking = false; spy(); });
@@ -432,35 +436,56 @@
   });
 
   /* ───────────── Bottom sheets ───────────── */
+  // La entrada y la salida son @keyframes y el estado de reposo es "visible":
+  // si la animación no corre (Safari, ahorro de energía), el panel igual aparece.
+  const canModal = typeof HTMLDialogElement === 'function' && 'showModal' in HTMLDialogElement.prototype;
+  let opener = null;
+
+  function hideDialog(dlg) {
+    if (!dlg.open) return;
+    if (canModal) dlg.close();
+    else dlg.removeAttribute('open');
+  }
+
+  function finishClose(dlg) {
+    clearTimeout(dlg._closeTimer);
+    dlg.classList.remove('is-closing');
+    dlg.style.transform = '';
+    dlg.style.transition = '';
+    hideDialog(dlg);
+    if (opener && (dlg.contains(document.activeElement) || document.activeElement === document.body)) {
+      opener.focus({ preventScroll: true });
+    }
+  }
 
   function openSheet(dlg) {
-    if (dlg.open) return;
-    dlg.showModal();
-    document.documentElement.classList.add('is-locked');
     $('.sheet__body', dlg).scrollTop = 0;
-    requestAnimationFrame(() => requestAnimationFrame(() => dlg.classList.add('is-open')));
+    if (dlg.open && !dlg.classList.contains('is-closing')) return;
+    finishClose(dlg);
+    opener = document.activeElement;
+    savedY = window.scrollY;
+    document.documentElement.classList.add('is-locked');
+    if (canModal) dlg.showModal();
+    else dlg.setAttribute('open', '');
+    keepScroll();
   }
 
   function closeSheet(dlg) {
-    if (!dlg.open || dlg.dataset.closing) return;
-    dlg.dataset.closing = '1';
-    dlg.style.transform = '';
-    dlg.classList.remove('is-open', 'is-dragging');
-    const done = () => {
-      if (!dlg.dataset.closing) return;
-      delete dlg.dataset.closing;
-      dlg.close();
-      if (!$$('dialog[open]').length) document.documentElement.classList.remove('is-locked');
-    };
-    if (reduceMotion.matches) done();
-    else {
-      dlg.addEventListener('transitionend', done, { once: true });
-      setTimeout(done, 420);
-    }
+    if (!dlg.open || dlg.classList.contains('is-closing')) return;
+    document.documentElement.classList.remove('is-locked');
+    keepScroll();
+    if (reduceMotion.matches) { finishClose(dlg); return; }
+    // El modal se libera enseguida (la carta vuelve a responder) y la salida se anima sin bloquear.
+    if (canModal) { dlg.close(); dlg.show(); }
+    dlg.classList.add('is-closing');
+    dlg._closeTimer = setTimeout(() => finishClose(dlg), 320);
   }
 
   $$('dialog.sheet').forEach((dlg) => {
     dlg.addEventListener('cancel', (e) => { e.preventDefault(); closeSheet(dlg); });
+    dlg.addEventListener('animationend', (e) => {
+      if (e.target === dlg && e.animationName === 'sheet-out') finishClose(dlg);
+    });
     dlg.addEventListener('click', (e) => {
       if (e.target === dlg) {
         // Click en el backdrop (fuera del contenido).
@@ -476,10 +501,11 @@
     let dy = 0;
     let dragging = false;
     grab.addEventListener('pointerdown', (e) => {
+      if (dlg.classList.contains('is-closing')) return;
       dragging = true;
       startY = e.clientY;
       dy = 0;
-      dlg.classList.add('is-dragging');
+      dlg.style.transition = 'none';
       grab.setPointerCapture(e.pointerId);
     });
     grab.addEventListener('pointermove', (e) => {
@@ -490,9 +516,12 @@
     const end = () => {
       if (!dragging) return;
       dragging = false;
-      dlg.classList.remove('is-dragging');
-      if (dy > 90) closeSheet(dlg);
-      else dlg.style.transform = '';
+      if (dy > 90) {
+        closeSheet(dlg);
+      } else {
+        dlg.style.transition = 'transform .2s ease-out';
+        dlg.style.transform = '';
+      }
     };
     grab.addEventListener('pointerup', end);
     grab.addEventListener('pointercancel', end);
